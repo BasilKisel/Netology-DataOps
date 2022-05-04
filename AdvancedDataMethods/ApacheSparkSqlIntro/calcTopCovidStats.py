@@ -79,50 +79,47 @@ covid_df.persist(StorageLevel.MEMORY_ONLY)
 date_col = covid_df.select('date')
 date_col.persist(StorageLevel.MEMORY_ONLY)
 
+
 # Выберите 15 стран с наибольшим процентом переболевших на 31 марта (в выходящем датасете необходимы колонки: iso_code, страна, процент переболевших)
 top15_perc_2021_mar_31_data = covid_df \
     .where(date_col['date'] == date(2021, 3, 31)) \
     .select('iso_code', 'location', 'total_cases_per_million') \
     .where("total_cases_per_million >= 0 and iso_code not like 'OWID%'") \
-    .withColumn('total_cases_per_mil_rank', row_number().over(Window().orderBy(col('total_cases_per_million').desc()))) \
-    .where('total_cases_per_mil_rank <= 15') \
-    .sort('total_cases_per_mil_rank')
-with open(file = top15_perc_2021_mar_31_filepath, mode = 'w', encoding = 'UTF8') as res_file:
-    res_file.write('iso_code, страна, процент переболевших\n')
-    for row in top15_perc_2021_mar_31_data.collect():
-        res_file.write(f'"{row["iso_code"]}","{row["location"]}","{row["total_cases_per_million"]/Decimal(10000)}"\n')
+    .sort(col('total_cases_per_million').desc()) \
+    .limit(15) \
+    .select('iso_code', col('location').alias('страна'), (col("total_cases_per_million") / 1e4).alias('процент переболевших')) \
+    .write.csv(path = top15_perc_2021_mar_31_filepath, header = True)
+
 
 # Top 10 стран с максимальным зафиксированным кол-вом новых случаев за последнюю неделю марта 2021
 # в отсортированном порядке по убыванию (в выходящем датасете необходимы колонки: число, страна, кол-во новых случаев)
-sun_2021_mar_last_week = date(2021, 3, 31) - timedelta(days = date(2021, 3, 31).isoweekday() % 7)
-mon_2021_mar_last_week = sun_2021_mar_last_week - timedelta(days = 6)
+mar_31_2022_dt = date(2021, 3, 31)
+mar_25_2022_dt = date(2021, 3, 25)
 new_cases_2021_mar_last_week_data = covid_df \
-    .where((date_col['date'] >= mon_2021_mar_last_week) & (date_col['date'] <= sun_2021_mar_last_week)) \
+    .where((date_col['date'] >= mar_25_2022_dt) & (date_col['date'] <= mar_31_2022_dt)) \
     .select('date', 'iso_code', 'new_cases') \
     .where("new_cases > 0 and iso_code not like 'OWID%'") \
     .withColumn('new_cases_loc_rank', row_number().over(Window().partitionBy('iso_code').orderBy(col('new_cases').desc()))) \
     .where('new_cases_loc_rank = 1') \
-    .sort('new_cases', ascending = False)
-with open(file = top10_new_cases_2021_mar_last_week_filepath, mode = 'w', encoding = 'UTF8') as res_file:
-    res_file.write('число, страна, кол-во новых случаев\n')
-    for row in new_cases_2021_mar_last_week_data.take(10):
-        res_file.write(f'"{row["date"].strftime("%Y-%m-%d")}","{row["iso_code"]}","{row["new_cases"]}"\n')
+    .sort('new_cases', ascending = False) \
+    .limit(10) \
+    .select(col('date').alias('число'), col('iso_code').alias('страна'), col('new_cases').alias('кол-во новых случаев')) \
+    .write.csv(path = top10_new_cases_2021_mar_last_week_filepath, header = True)
+
 
 # Посчитайте изменение случаев относительно предыдущего дня в России за последнюю неделю марта 2021.
 # (например: в россии вчера было 9150 , сегодня 8763, итог: -387)
 # (в выходящем датасете необходимы колонки: число, кол-во новых случаев вчера, кол-во новых случаев сегодня, дельта)
 ## already defined:
-## sun_2021_mar_last_week
-## mon_2021_mar_last_week
+## mar_31_2022_dt
+## mar_25_2022_dt
 diff_russia_2021_mar_last_week = covid_df \
-    .where((date_col['date'] >= (mon_2021_mar_last_week - timedelta(days = 1))) & (date_col['date'] <= sun_2021_mar_last_week)) \
+    .where((date_col['date'] >= (mar_25_2022_dt - timedelta(days = 1))) & (date_col['date'] <= mar_31_2022_dt)) \
     .where("iso_code = 'RUS'") \
     .select('new_cases', 'date') \
     .withColumn('prev_day_new_cases', lag('new_cases', 1, None).over(Window().orderBy('date'))) \
     .withColumn('new_cases_delta', (col('new_cases') - col('prev_day_new_cases'))) \
-    .where(col('date') >= mon_2021_mar_last_week) \
-    .sort('date')
-with open(file = diff_russia_2021_mar_last_week_filepath, mode = 'w', encoding = 'UTF8') as res_file:
-    res_file.write('число, кол-во новых случаев вчера, кол-во новых случаев сегодня, дельта\n')
-    for row in diff_russia_2021_mar_last_week.collect():
-        res_file.write(f'"{row["date"].strftime("%Y-%m-%d")}","{row["prev_day_new_cases"]}","{row["new_cases"]}","{row["new_cases_delta"]}"\n')
+    .where(col('date') >= mar_25_2022_dt) \
+    .sort('date') \
+    .select(col('date').alias('число'), col('prev_day_new_cases').alias('кол-во новых случаев вчера'), col('new_cases').alias('кол-во новых случаев сегодня'), col('new_cases_delta').alias('дельта')) \
+    .write.csv(path = diff_russia_2021_mar_last_week_filepath, header = True)
