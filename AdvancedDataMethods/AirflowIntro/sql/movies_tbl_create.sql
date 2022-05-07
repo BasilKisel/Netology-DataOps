@@ -1,0 +1,8 @@
+CREATE SCHEMA movies
+;
+CREATE TABLE IF NOT EXISTS movies.movies
+(
+	movie_id BIGINT NOT NULL CONSTRAINT PK__movies PRIMARY KEY,
+	title TEXT NOT NULL,
+	genres TEXT NOT NULL
+);
