@@ -1,0 +1,4 @@
+﻿{
+    "key": "PG_MOVIES_CONN_ID",
+    "value": "postgresql_movies_db"
+}

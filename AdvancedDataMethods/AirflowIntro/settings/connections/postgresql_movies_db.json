@@ -1,0 +1,9 @@
+﻿{
+    "connection_id": "postgresql_movies_db",
+    "conn_type": "Postgres",
+    "host": "host.docker.internal",
+    "login": "postgres",
+    "schema": "movies",
+    "port": 5433,
+    "password": "I5jvu8wZsy9z"
+}

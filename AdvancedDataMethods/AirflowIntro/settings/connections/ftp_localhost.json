@@ -1,0 +1,9 @@
+﻿{
+    "connection_id": "ftp_localhost",
+    "conn_type": "FTP",
+    "host": "host.docker.internal",
+    "login": "airflow_ftp_user",
+    "schema": "",
+    "port": 21,
+    "password": "Aa123456"
+}

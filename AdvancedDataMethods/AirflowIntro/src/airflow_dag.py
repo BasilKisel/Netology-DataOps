@@ -20,7 +20,7 @@ import logging as log
 from contextlib import closing
 movies_pg_conn_id = Variable.get("PG_MOVIES_CONN_ID")
 ftp_local_conn_id = Variable.get("FTP_LOCAL_CONN")
-ftp_path = Variable.get("FTP_REPORT_PATH")
+ftp_reports_path = Variable.get("FTP_REPORTS_PATH")
 LOG = log.getLogger(__name__)
 
 ARGS_CONFIG = Variable.get('ARGS_CONFIG', deserialize_json=True)
@@ -68,7 +68,7 @@ def CopyReportToLocalFtp():
                 report_csv = ''
                 LOG.warning('CopyReportToLocalFtp - no data found')
     buf = BytesIO(bytearray(report_csv, 'UTF8'))
-    FTPHook(ftp_local_conn_id).store_file(ftp_path, buf)
+    FTPHook(ftp_local_conn_id).store_file(f"{ftp_reports_path}/report_{CURR_DATE}.csv", buf)
     LOG.info('CopyReportToLocalFtp - finished')
 
 with DAG(dag_id=str(DAG_CONFIG['dag_id']),

@@ -1,0 +1,4 @@
+﻿{
+    "key": "DAG_CONFIG",
+    "value": "{\"dag_id\": \"my-first-dag\", \"max_active_runs\": \"10\", \"concurrency\": \"10\", \"description\": \"DAG for sending email with CSV file report\", \"schedule_interval\": \"1\"}"
+}
