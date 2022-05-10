@@ -1,0 +1,4 @@
+﻿{
+    "key": "EMAIL_CONN_PROP",
+    "value": "{\"smtp_server\": \"smtp.yandex.ru\", \"smtp_port\": 465, \"login\": \"basilix@yandex.ru\", \"password\": \"secret\", \"timeout\": 10}"
+}

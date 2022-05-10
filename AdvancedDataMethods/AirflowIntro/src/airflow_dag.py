@@ -14,13 +14,14 @@ from airflow_operator import SendEmailOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.providers.ftp.hooks.ftp import FTPHook
+from airflow.providers.ftp.sensors.ftp import FTPSensor
 from airflow.decorators import task
 from io import BytesIO
 import logging as log
 from contextlib import closing
 movies_pg_conn_id = Variable.get("PG_MOVIES_CONN_ID")
-ftp_local_conn_id = Variable.get("FTP_LOCAL_CONN")
-ftp_reports_path = Variable.get("FTP_REPORTS_PATH")
+FTP_LOCAL_CONN_ID = Variable.get("FTP_LOCAL_CONN")
+FTP_REPORTS_PATH = Variable.get("FTP_REPORTS_PATH")
 LOG = log.getLogger(__name__)
 
 ARGS_CONFIG = Variable.get('ARGS_CONFIG', deserialize_json=True)
@@ -68,7 +69,8 @@ def CopyReportToLocalFtp():
                 report_csv = ''
                 LOG.warning('CopyReportToLocalFtp - no data found')
     buf = BytesIO(bytearray(report_csv, 'UTF8'))
-    FTPHook(ftp_local_conn_id).store_file(f"{ftp_reports_path}/report_{CURR_DATE}.csv", buf)
+    with FTPHook(FTP_LOCAL_CONN_ID) as ftp:
+        ftp.store_file(f"{FTP_REPORTS_PATH}/report_{CURR_DATE}.csv", buf)
     LOG.info('CopyReportToLocalFtp - finished')
 
 with DAG(dag_id=str(DAG_CONFIG['dag_id']),
@@ -104,11 +106,12 @@ with DAG(dag_id=str(DAG_CONFIG['dag_id']),
         dag=dag
     )
     """
+    report_file_sensor = FTPSensor(path = f"{FTP_REPORTS_PATH}/report_{CURR_DATE}.csv", ftp_conn_id = FTP_LOCAL_CONN_ID, task_id = 'report-file-sensor')
 
-    # send_email = SendEmailOperator(my_operator_param='SendEmailOperator is ready to work', task_id='send-email', dag=dag)
+    send_email = SendEmailOperator(my_operator_param='SendEmailOperator is ready to work', task_id='send-email', dag=dag)
 
     finish_pipeline = DummyOperator(task_id='finish-pipeline', dag=dag)
 
     # airflow dag graph
     # start_pipeline >> save_csv_report_to_gcs >> send_email >> finish_pipeline
-    start_pipeline >> CopyReportToLocalFtp() >> finish_pipeline
+    start_pipeline >> [CopyReportToLocalFtp(), report_file_sensor] >> send_email >> finish_pipeline
