@@ -1,0 +1,43 @@
+C:\v.kisel\tmp\Netology.ru\Netology-DataOps\StreamData\Clickhouse>pushd "C:\v.kisel\tmp\Netology.ru\Netology-DataOps\StreamData\Clickhouse\"
+
+C:\v.kisel\tmp\Netology.ru\Netology-DataOps\StreamData\Clickhouse>docker stop clickhouse-server-local
+clickhouse-server-local
+
+C:\v.kisel\tmp\Netology.ru\Netology-DataOps\StreamData\Clickhouse>docker rm clickhouse-server-local
+clickhouse-server-local
+
+C:\v.kisel\tmp\Netology.ru\Netology-DataOps\StreamData\Clickhouse>docker run -d --name clickhouse-server-local --ulimit nofile=262144:262144 clickhouse/clickhouse-server
+a94c2c738586d54d7e4ad45b23a205618f7ced2e98d4aeb7e20b8a203b5270b6
+
+C:\v.kisel\tmp\Netology.ru\Netology-DataOps\StreamData\Clickhouse>docker cp .\dsw\metrika_sample.tsv clickhouse-server-local:/tmp/metrika_sample.tsv
+
+C:\v.kisel\tmp\Netology.ru\Netology-DataOps\StreamData\Clickhouse>docker cp .\clickhouse-homework.sh clickhouse-server-local:/tmp/clickhouse-homework.sh
+
+C:\v.kisel\tmp\Netology.ru\Netology-DataOps\StreamData\Clickhouse>docker exec clickhouse-server-local chmod u+x /tmp/clickhouse-homework.sh
+
+C:\v.kisel\tmp\Netology.ru\Netology-DataOps\StreamData\Clickhouse>docker exec -it clickhouse-server-local /bin/bash -v /tmp/clickhouse-homework.sh
+#!/usr/bin/env bash
+clickhouse-client -q "CREATE DATABASE homework;"
+clickhouse-client -d 'homework' -q '
+    CREATE TABLE homework.metrika
+    (
+        "EventDate" Date,
+        "CounterID" UInt32,
+        "UserID" UInt64,
+        "RegionID" UInt32
+    )
+    ENGINE = MergeTree()
+    PARTITION BY toYYYYMM(EventDate)
+    ORDER BY (CounterID, EventDate, intHash32(UserID));
+'
+cat /tmp/metrika_sample.tsv | clickhouse-client --database homework --query "INSERT INTO metrika FORMAT TSV"
+# Посчитайте какой пользователь UserID сделал больше всего просмотров страниц?
+clickhouse-client -d 'homework' -q "
+    SELECT 'UserID = ' || CAST(""UserID"" AS VARCHAR(20)), ' vw_cnt = ' || CAST(COUNT(*) AS VARCHAR(20)) AS ""vw_cnt"" FROM homework.metrika GROUP BY ""UserID"" ORDER BY COUNT(*) DESC LIMIT 1;
+"
+UserID = 1313448155240738815     vw_cnt = 4439
+
+C:\v.kisel\tmp\Netology.ru\Netology-DataOps\StreamData\Clickhouse>popd
+
+C:\v.kisel\tmp\Netology.ru\Netology-DataOps\StreamData\Clickhouse>pause
+Для продолжения нажмите любую клавишу . . .
