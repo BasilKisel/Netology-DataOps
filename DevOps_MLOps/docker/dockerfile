@@ -1,0 +1,9 @@
+FROM continuumio/miniconda3:latest
+
+COPY app/1.sh /1.sh
+
+RUN /bin/bash -c 'chmod ug+x /1.sh'
+
+RUN /bin/bash -c 'conda install -y -c conda-forge mlflow && conda install -y -c anaconda boto3 pymysql'
+
+CMD "/1.sh"
