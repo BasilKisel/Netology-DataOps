@@ -1,0 +1,58 @@
+﻿# Наименование netology-ml
+- name: netology-ml
+  hosts: myhosts
+  become: yes
+
+  vars:
+    packages:
+      - net-tools
+      - git
+      - tree
+      - htop
+      - mc
+      - vim
+
+
+  tasks:
+
+    # Проверка через метод ping доступность хостов
+    - name: Task ping
+      ping:
+
+    # Использование update
+    - name: Update Apt Cache
+      apt:
+        update_cache: yes
+
+    # Через var установка пакетов net_tools, git, tree, htop, mc, vim
+    - name: Installing Packages
+      apt:
+        name: "{{packages}}"
+        state: latest
+
+    # Копирование текстового файла test.txt
+    - name: Copy Test File
+      copy:
+        src: test.txt
+        dest: /home/ansible/test.txt
+        mode: 0777
+
+    # Создание в цикле групп пользователей devops_1, test_1 с созданием пользователей и директорий home devops_1, test_1
+    - name: Create Some Groups
+      group:
+        name: "{{item}}"
+        state: present
+      loop:
+        - devops_1
+        - test_1
+  
+    - name: Create Some Users
+      user:
+        name: "{{item.client_name}}"
+        shell: /bin/bash/
+        groups: "{{item.group_name}}"
+        append: yes
+        home: "/home/{{item.home_dir}}"
+      with_items:
+        - {client_name: devops_1, group_name: devops_1, home_dir: devops_1}
+        - {client_name: test_1, group_name: test_1, home_dir: test_1}

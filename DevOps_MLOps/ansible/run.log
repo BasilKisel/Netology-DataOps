@@ -1,0 +1,51 @@
+﻿vasiliy@HD-ND1:~/Netology-DataOps/DevOps_MLOps/ansible$ tail -n 9 /etc/ansible/hosts
+
+#db-[99:101]-node.example.com
+
+
+[myhosts]
+master ansible_host=HD-ND1 ansible_port=9922 ansible_user=ansible ansible_password=secret
+desk-nd2 ansible_host=HD-ND2 ansible_port=8822 ansible_user=ansible ansible_password=secret
+
+
+vasiliy@HD-ND1:~/Netology-DataOps/DevOps_MLOps/ansible$ ansible-playbook homework.yaml 
+
+PLAY [netology-ml] ***************************************************************************************************************************
+
+TASK [Gathering Facts] ***********************************************************************************************************************
+ok: [desk-nd2]
+ok: [master]
+
+TASK [Task ping] *****************************************************************************************************************************
+ok: [desk-nd2]
+ok: [master]
+
+TASK [Update Apt Cache] **********************************************************************************************************************
+changed: [desk-nd2]
+changed: [master]
+
+TASK [Installing Packages] *******************************************************************************************************************
+changed: [desk-nd2]
+changed: [master]
+
+TASK [Copy Test File] ************************************************************************************************************************
+changed: [desk-nd2]
+changed: [master]
+
+TASK [Create Some Groups] ********************************************************************************************************************
+changed: [desk-nd2] => (item=devops_1)
+changed: [master] => (item=devops_1)
+changed: [desk-nd2] => (item=test_1)
+changed: [master] => (item=test_1)
+
+TASK [Create Some Users] *********************************************************************************************************************
+changed: [desk-nd2] => (item={u'client_name': u'devops_1', u'home_dir': u'devops_1', u'group_name': u'devops_1'})
+changed: [master] => (item={u'client_name': u'devops_1', u'home_dir': u'devops_1', u'group_name': u'devops_1'})
+changed: [desk-nd2] => (item={u'client_name': u'test_1', u'home_dir': u'test_1', u'group_name': u'test_1'})
+changed: [master] => (item={u'client_name': u'test_1', u'home_dir': u'test_1', u'group_name': u'test_1'})
+
+PLAY RECAP ***********************************************************************************************************************************
+desk-nd2                   : ok=7    changed=5    unreachable=0    failed=0   
+master                     : ok=7    changed=5    unreachable=0    failed=0   
+
+vasiliy@HD-ND1:~/Netology-DataOps/DevOps_MLOps/ansible$ 
