@@ -1,0 +1,10 @@
+﻿vasiliy@HD-ND1:~/Netology-DataOps/DevOps_MLOps/ansible$ tail -n 9 /etc/ansible/hosts
+
+#db-[99:101]-node.example.com
+
+
+[myhosts]
+master ansible_host=localhost ansible_port=9922 ansible_user=ansible ansible_password=secret
+desk-nd2 ansible_host=localhost ansible_port=8822 ansible_user=ansible ansible_password=secret
+
+

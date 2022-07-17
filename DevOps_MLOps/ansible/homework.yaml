@@ -3,7 +3,7 @@
   hosts: myhosts
   become: yes
 
-  var:
+  vars:
     packeges:
       - net-tools
       - git
