@@ -4,7 +4,7 @@
 
 
 [myhosts]
-master ansible_host=localhost ansible_port=9922 ansible_user=ansible ansible_password=secret
-desk-nd2 ansible_host=localhost ansible_port=8822 ansible_user=ansible ansible_password=secret
+master ansible_host=HD-ND1 ansible_port=9922 ansible_user=ansible ansible_password=secret
+desk-nd2 ansible_host=HD-ND2 ansible_port=8822 ansible_user=ansible ansible_password=secret
 
 
