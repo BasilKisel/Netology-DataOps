@@ -34,7 +34,7 @@
     - name: Copy Test File
       copy:
         src: test.txt
-        dest: /home/ansible/files
+        dest: /home/ansible/test.txt
         mode: 0777
 
     # Создание в цикле групп пользователей devops_1, test_1 с созданием пользователей и директорий home devops_1, test_1
