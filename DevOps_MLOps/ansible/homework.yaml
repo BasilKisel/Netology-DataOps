@@ -14,19 +14,19 @@
 
 
   tasks:
-  
+
     # Проверка через метод ping доступность хостов
     - name: Task ping
       ping:
 
     # Использование update
     - name: Update Apt Cache
-      ansible.builtin.apt:
+      apt:
         update_cache: yes
 
     # Через var установка пакетов net_tools, git, tree, htop, mc, vim
     - name: Installing Packages
-      ansible.builtin.apt:
+      apt:
         name: "{{packages}}"
         state: latest
 
