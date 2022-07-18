@@ -1,0 +1,29 @@
+﻿# https://github.com/Netology-DS/devops-mlops/tree/master/GitlabCI
+stages:
+  - build
+  - test
+
+# начало Building
+# создание папки build
+# создание файла в этой папке info.txt
+build-job:
+  stage: build
+  script:
+    - echo "Building"
+    - mkdir "build"
+    - touch "build/info.txt"
+  artifacts:
+    paths:
+      - build/info.txt
+  tags:
+    - netology
+
+# выводим Testing
+# проверяем наличие файла info.txt в папке build
+test-job:
+  stage: test
+  script:
+    - echo "Testing"
+    - test -e "build/info.txt"
+  tags:
+    - netology
