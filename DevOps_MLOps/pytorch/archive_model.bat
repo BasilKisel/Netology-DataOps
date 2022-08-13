@@ -1,0 +1,1 @@
+torch-model-archiver --model-name netology-mlops-torch-test-model --version 0.1 --handler image_classifier --serialized-file ./models/densenet161-8d451a50.pth --runtime python3 --export-path ./artifacts --force --archive-format default

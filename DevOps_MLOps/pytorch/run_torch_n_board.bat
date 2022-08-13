@@ -1,0 +1,3 @@
+set BOARD=C:\v.kisel\tmp\Netology.ru\workbench\mlop6 - PyTorch\torchserve-dashboard
+start cmd /k torchserve --start --ncs --model-store ./artifacts --models netology-mlops-torch-test-model=netology-mlops-torch-test-model.mar --foreground --ts-config "%~dp0\config.properties"
+start cmd /k streamlit run "%BOARD%\torchserve_dashboard\dash.py" --server.port 8105 -- --config_path "%~dp0\config.properties"
