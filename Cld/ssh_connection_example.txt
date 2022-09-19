@@ -1,0 +1,4 @@
+$ ssh -4 -N \
+    -L localhost:55555:$TRG_SRV:$TRG_PORT \
+    -l $TRG_USER -i PATH_TO_IDEN_FILE \
+    SSH_GW_PUBLIC_IP4
